@@ -1,0 +1,38 @@
+services:
+    php:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - ./app:/var/www/html
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-db_root_password}
+            MYSQL_USER: ${MYSQL_USER:-db_user}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-db_password}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-db_template}
+        ports:
+            - "${LOCAL_PORT:-8060}:80"
+        depends_on:
+            - mysql
+    mysql:
+        image: mariadb:latest
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-db_root_password}
+            MYSQL_USER: ${MYSQL_USER:-db_user}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-db_password}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-db_template}
+        volumes:
+            - mysqldata:/var/lib/mysql
+        ports:
+            - 38061:3306
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        ports:
+            - 8061:80
+        environment:
+            - PMA_ARBITRARY=1
+        depends_on:
+            - mysql
+volumes:
+    mysqldata: {}
