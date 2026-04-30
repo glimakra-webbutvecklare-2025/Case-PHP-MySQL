@@ -86,7 +86,7 @@ Docker Desktop ska vara installerat och startat: https://www.docker.com/
 | Route-navigering | Named routes + `route()`-hjälpfunktion |
 | Route model binding | `Page $page` i kontrollern istället för manuell ID-hämtning |
 | Flash-meddelanden | `->with('success', 'Meddelande')` vid redirect |
-| Tabeller | Minst 3 st — utnyttja Eloquent-relationer |
+| Resurser | Minst 2 st — t.ex Recepies och Comments |
 
 ---
 
@@ -223,43 +223,11 @@ Applikationen bygger på följande tabeller (exempel för en sidhanterare). Du f
 
 | Spår | Minsta antal tabeller |
 |---|---|
-| Spår A – Vanilla PHP | 2 |
-| Spår B – Laravel | 3 |
+| Spår A – Vanilla PHP | 2 (Users, Resource1) |
+| Spår B – Laravel | 3 (Users, Resource1, Resource2)|
 
-### Exempeltabeller (sidhanterare)
 
-**users**
-```sql
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL
-);
-```
-
-**pages**
-```sql
-CREATE TABLE pages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    title VARCHAR(100) NOT NULL,
-    content TEXT NOT NULL,
-    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-```
-
-**images**
-```sql
-CREATE TABLE images (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    page_id INT NOT NULL,
-    url VARCHAR(255) NOT NULL,
-    FOREIGN KEY (page_id) REFERENCES pages(id)
-);
-```
-
-> **Spår A:** Tabellerna skapas automatiskt vid första körning via ett PHP-skript (`CREATE TABLE IF NOT EXISTS`).
+> **Spår A:** Tabellerna skapas automatiskt vid första körning via ett PHP-skript _setup.php (`CREATE TABLE IF NOT EXISTS`).
 >
 > **Spår B:** Använd Laravels migrations för att skapa tabellerna. Kör `php artisan migrate` för att skapa dem. Laravel Breeze kan användas för `users`-tabellen — då slipper du skapa den själv.
 
