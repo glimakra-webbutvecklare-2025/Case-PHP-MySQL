@@ -1,5 +1,9 @@
 # Case Fullstack PHP
 
+I det här caset bygger du en full‑stack‑applikation där inloggade användare kan skapa, läsa, uppdatera och ta bort (CRUD) en valfri typ av resurs. Vilken resurs det är bestämmer du själv – t.ex. en receptbok, kontaktbok, diktsamling, twitterklon, fotodagbok … välj något som känns roligt och rimligt att färdigställa inom tidsramen.
+
+Språken du ska använda är PHP, SQL, HTML, CSS och JavaScript.
+
 Dockermiljö och casebeskrivning för att utveckla en fullstackapplikation. Du kan välja mellan **två spår**:
 
 - **Spår A – Vanilla PHP:** PHP utan ramverk, PDO, manuell sessionshantering
@@ -34,6 +38,111 @@ Docker Desktop ska vara installerat och startat: https://www.docker.com/
 | Webbserver | Apache (ingår i Docker-imagen) |
 | Tabeller | Minst 3 st (utnyttja Eloquent-relationer) |
 | Applikation | Valfri domän (förslag: sidhanterare / CMS) |
+
+---
+
+## Grundläggande krav
+
+### Gemensamma krav (gäller båda spår)
+
+- **Publik vy:** Besökare kan läsa publicerat innehåll utan inloggning
+- **Registrering:** Besökare kan registrera konto (användarnamn + lösenord, hashat)
+- **Inloggning/utloggning:** Sessionsbaserad autentisering
+- **CRUD:** Inloggad användare kan skapa, läsa, redigera och ta bort **sina egna** resurser
+- **Filuppladdning:** Inloggad användare kan ladda upp och bifoga bilder/filer till sina resurser
+- **Docker:** Applikationen körs i en Docker-miljö
+- **Navigation:** En aside-meny för navigation mellan applikationens delar
+- **Git/GitHub:** Minst 10 commits med beskrivande meddelanden, `README.md` som dokumenterar projektet
+- **Databas:** Tabeller skapas automatiskt vid setup (vanilla: skript, Laravel: migrations)
+
+> **För spår B gäller dessutom:** Du ska lösa ovanstående krav **med ramverkets inbyggda funktioner**, inte genom manuella lösningar (se nästa avsnitt).
+
+### Spår A – Specifika krav (Vanilla PHP)
+
+- Manuell databasanslutning med PDO och config-fil
+- Handskriven autentisering (`register.php`, `login.php`, `logout.php`)
+- Manuell sessionskontroll (`$_SESSION`) i varje skyddad fil
+- Prepared statements för alla SQL-frågor
+- `htmlspecialchars()` på all användargenererad output
+- Manuell filuppladdning (`$_FILES` + `move_uploaded_file()`)
+- Manuell validering (`filter_input()` / `filter_var()`)
+- Manuella redirects (`header('Location: ...')`)
+
+### Spår B – Specifika krav (Laravel)
+
+> Dessa krav **ersätter** motsvarande manuella lösningar i spår A.
+
+| Område | Krav |
+|---|---|
+| Autentisering | Använd Laravel Breeze (rekommenderas) eller manuell auth via `Auth`-facaden |
+| Databas | Eloquent-modeller med relationer (`hasMany`, `belongsTo`) |
+| Vyer | Blade med layout inheritance (`@extends`, `@section`, `@yield`) |
+| Validering | `$request->validate()` i kontrollern |
+| Filuppladdning | Laravel Storage (`$request->file()->store()`) + `php artisan storage:link` |
+| CSRF-skydd | `@csrf` i alla formulär |
+| Routing | `Route::middleware('auth')`-grupper för skyddade routes |
+| Auktorisering | Policies för ägarskapskontroll (t.ex. `$this->authorize('update', $page)`) |
+| Databasschema | Migrations (`php artisan migrate`) |
+| Route-navigering | Named routes + `route()`-hjälpfunktion |
+| Route model binding | `Page $page` i kontrollern istället för manuell ID-hämtning |
+| Flash-meddelanden | `->with('success', 'Meddelande')` vid redirect |
+| Tabeller | Minst 3 st — utnyttja Eloquent-relationer |
+
+---
+
+## Designkrav (gäller båda spår)
+
+- En **administrativ dashboard** ska implementeras med en **separat SCSS-fil**
+- Dashboardens design ska vara **tydligt åtskild** från den publika delen av applikationen
+- Exempel: mörkare färgschema, annan layout, tydlig visuell gräns mellan admin och publik vy
+
+| Spår | Implementation |
+|---|---|
+| Spår A | Skapa en separat SCSS/CSS-fil som laddas in på admin-sidorna. Organisera admin-filerna i en egen mapp (t.ex. `admin/`) |
+| Spår B | Skapa en separat Blade layout för admin (`layouts/admin.blade.php`) med en egen SCSS-fil. Använd `@vite` eller manuell inkludering |
+
+---
+
+## Utmaningar
+
+### Spår A – Vanilla PHP
+
+- Media queries / responsiv design för mobil och desktop
+- Extra fält: `email` på user, `updated_at` på resurs, `published`-flagga, `alt`-text på bild
+- WYSIWYG-editor (TinyMCE eller CKEditor) för textinnehåll
+- Snygga URLs via `.htaccess` (mod_rewrite)
+- Publicera på webbhotell (t.ex. Hetzner eller DigitalOcean)
+
+### Spår B – Laravel
+
+- Implementera **Form Request-klasser** för validering istället för inline `$request->validate()`
+- Skapa en **Database Seeder** för att populera databasen med exempeldata
+- Lägg till **draft/published-status** och använd **Eloquent Scopes** (t.ex. `->published()`)
+- Implementera **paginering** (`->paginate()`) på resurslistning
+- Bygg en **sökfunktion** med Eloquent query scopes
+- Ladda upp och hantera **flera bilder per resurs** (om du inte redan gjort det)
+- Publicera på webbhotell (t.ex. Laravel Forge, Hetzner eller DigitalOcean)
+
+---
+
+## Feedback / Bedömning
+
+| Rubrik | Tillräckligt | Väl godkänt |
+|---|---|---|
+| Funktionella krav | Alla grundläggande krav är implementerade | Utöver G: 3+ utmaningar är implementerade |
+| Kodkvalitet | Konsekvent indentering, engelska variabelnamn, kommentarer | Mycket välstrukturerad kod, DRY, separation of concerns |
+| Databas | Tabeller skapas automatiskt, följer normalform | Välmotiverad struktur med rätt relationer och index |
+| Versionshantering | Minst 10 commits med vettiga meddelanden | Commits är små, logiska och väl beskrivna |
+| Dokumentation | `README.md` finns och beskriver projektet | Utförlig README med setup-instruktioner, skärmdumpar och tekniska val |
+| Design | Grundläggande layout med CSS-ramverk fungerar | Responsiv design, genomtänkt UX |
+
+---
+
+## Presentation och inlämning
+
+- 18de maj kl 08.45 halvtidsredovisning
+- 25de maj kl 08.45 slutsredovisning
+- Koden publiceras på GitHub (privat repository) och delas med Anders, Henry och Mattias
 
 ---
 
@@ -153,113 +262,6 @@ CREATE TABLE images (
 > **Spår A:** Tabellerna skapas automatiskt vid första körning via ett PHP-skript (`CREATE TABLE IF NOT EXISTS`).
 >
 > **Spår B:** Använd Laravels migrations för att skapa tabellerna. Kör `php artisan migrate` för att skapa dem. Laravel Breeze kan användas för `users`-tabellen — då slipper du skapa den själv.
-
----
-
-## Grundläggande krav
-
-### Gemensamma krav (gäller båda spår)
-
-- **Publik vy:** Besökare kan läsa publicerat innehåll utan inloggning
-- **Registrering:** Besökare kan registrera konto (användarnamn + lösenord, hashat)
-- **Inloggning/utloggning:** Sessionsbaserad autentisering
-- **CRUD:** Inloggad användare kan skapa, läsa, redigera och ta bort **sina egna** resurser
-- **Filuppladdning:** Inloggad användare kan ladda upp och bifoga bilder/filer till sina resurser
-- **Docker:** Applikationen körs i en Docker-miljö
-- **Navigation:** En aside-meny för navigation mellan applikationens delar
-- **Git/GitHub:** Minst 10 commits med beskrivande meddelanden, `README.md` som dokumenterar projektet
-- **Databas:** Tabeller skapas automatiskt vid setup (vanilla: skript, Laravel: migrations)
-
-> **För spår B gäller dessutom:** Du ska lösa ovanstående krav **med ramverkets inbyggda funktioner**, inte genom manuella lösningar (se nästa avsnitt).
-
-### Spår A – Specifika krav (Vanilla PHP)
-
-- Manuell databasanslutning med PDO och config-fil
-- Handskriven autentisering (`register.php`, `login.php`, `logout.php`)
-- Manuell sessionskontroll (`$_SESSION`) i varje skyddad fil
-- Prepared statements för alla SQL-frågor
-- `htmlspecialchars()` på all användargenererad output
-- Manuell filuppladdning (`$_FILES` + `move_uploaded_file()`)
-- Manuell validering (`filter_input()` / `filter_var()`)
-- Manuella redirects (`header('Location: ...')`)
-
-### Spår B – Specifika krav (Laravel)
-
-> Dessa krav **ersätter** motsvarande manuella lösningar i spår A.
-
-| Område | Krav |
-|---|---|
-| Autentisering | Använd Laravel Breeze (rekommenderas) eller manuell auth via `Auth`-facaden |
-| Databas | Eloquent-modeller med relationer (`hasMany`, `belongsTo`) |
-| Vyer | Blade med layout inheritance (`@extends`, `@section`, `@yield`) |
-| Validering | `$request->validate()` i kontrollern |
-| Filuppladdning | Laravel Storage (`$request->file()->store()`) + `php artisan storage:link` |
-| CSRF-skydd | `@csrf` i alla formulär |
-| Routing | `Route::middleware('auth')`-grupper för skyddade routes |
-| Auktorisering | Policies för ägarskapskontroll (t.ex. `$this->authorize('update', $page)`) |
-| Databasschema | Migrations (`php artisan migrate`) |
-| Route-navigering | Named routes + `route()`-hjälpfunktion |
-| Route model binding | `Page $page` i kontrollern istället för manuell ID-hämtning |
-| Flash-meddelanden | `->with('success', 'Meddelande')` vid redirect |
-| Tabeller | Minst 3 st — utnyttja Eloquent-relationer |
-
----
-
-## Designkrav (gäller båda spår)
-
-- En **administrativ dashboard** ska implementeras med en **separat SCSS-fil**
-- Dashboardens design ska vara **tydligt åtskild** från den publika delen av applikationen
-- Exempel: mörkare färgschema, annan layout, tydlig visuell gräns mellan admin och publik vy
-
-| Spår | Implementation |
-|---|---|
-| Spår A | Skapa en separat SCSS/CSS-fil som laddas in på admin-sidorna. Organisera admin-filerna i en egen mapp (t.ex. `admin/`) |
-| Spår B | Skapa en separat Blade layout för admin (`layouts/admin.blade.php`) med en egen SCSS-fil. Använd `@vite` eller manuell inkludering |
-
----
-
-## Utmaningar
-
-### Spår A – Vanilla PHP
-
-- Media queries / responsiv design för mobil och desktop
-- Extra fält: `email` på user, `updated_at` på resurs, `published`-flagga, `alt`-text på bild
-- WYSIWYG-editor (TinyMCE eller CKEditor) för textinnehåll
-- Snygga URLs via `.htaccess` (mod_rewrite)
-- Publicera på webbhotell (t.ex. Hetzner eller DigitalOcean)
-
-### Spår B – Laravel
-
-- Implementera **Form Request-klasser** för validering istället för inline `$request->validate()`
-- Skapa en **Database Seeder** för att populera databasen med exempeldata
-- Lägg till **draft/published-status** och använd **Eloquent Scopes** (t.ex. `->published()`)
-- Implementera **paginering** (`->paginate()`) på resurslistning
-- Bygg en **sökfunktion** med Eloquent query scopes
-- Ladda upp och hantera **flera bilder per resurs** (om du inte redan gjort det)
-- Publicera på webbhotell (t.ex. Laravel Forge, VPS)
-
----
-
-## Feedback / Bedömning
-
-| Rubrik | Betyg G | Betyg VG |
-|---|---|---|
-| Funktionella krav | Alla grundläggande krav är implementerade | Utöver G: 3+ utmaningar är implementerade |
-| Kodkvalitet | Konsekvent indentering, engelska variabelnamn, kommentarer | Mycket välstrukturerad kod, DRY, separation of concerns |
-| Databas | Tabeller skapas automatiskt, följer normalform | Välmotiverad struktur med rätt relationer och index |
-| Versionshantering | Minst 10 commits med vettiga meddelanden | Commits är små, logiska och väl beskrivna |
-| Dokumentation | `README.md` finns och beskriver projektet | Utförlig README med setup-instruktioner, skärmdumpar och tekniska val |
-| Design | Grundläggande layout med CSS-ramverk fungerar | Responsiv design, genomtänkt UX |
-| **Spår A: Säkerhet** | Prepared statements, hasheade lösenord, `htmlspecialchars()` | Utöver G: CSRF-skydd, validering på både klient och server, säker filuppladdning |
-| **Spår B: Ramverksfunktioner** | Eloquent, Blade, migrations, Policies | Utnyttjar ramverket fullt ut — Form Requests, Scopes, route model binding, flash-meddelanden, Storage |
-
----
-
-## Presentation och inlämning
-
-- 18de maj kl 08.45 halvtidsredovisning
-- 25de maj kl 08.45 slutsredovisning
-- Koden publiceras på GitHub (privat repository) och delas med Anders, Henry och Mattias
 
 ---
 
