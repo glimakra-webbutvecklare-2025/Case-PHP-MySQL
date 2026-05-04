@@ -140,8 +140,8 @@ Docker Desktop ska vara installerat och startat: https://www.docker.com/
 
 ## Presentation och inlämning
 
-- 18de maj kl 08.45 halvtidsredovisning
-- 25de maj kl 08.45 slutsredovisning
+- **18 maj kl 10.25 halvtidsredovisning**
+- **25 maj kl 10.25 slutsredovisning**
 - Koden publiceras på GitHub (privat repository) och delas med Anders, Henry och Mattias
 
 ---
