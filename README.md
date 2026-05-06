@@ -142,7 +142,7 @@ Docker Desktop ska vara installerat och startat: https://www.docker.com/
 
 - **18 maj kl 10.25 halvtidsredovisning**
 - **25 maj kl 10.25 slutsredovisning**
-- Koden publiceras på GitHub (privat repository) och delas med Anders, Henry och Mattias
+- Koden publiceras på GitHub (privat repository) och delas med Anders (andsju), Henry (frozenbanana) och Mattias (addkolon). **Bjud in oss till Git repo kring den 11-12 maj.**
 
 ---
 
